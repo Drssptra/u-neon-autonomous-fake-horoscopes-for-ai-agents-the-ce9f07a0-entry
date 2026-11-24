@@ -11,6 +11,18 @@ const HOROSCOPE =
 const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
 const outFile = join(outDir, "entry.txt");
 
+// Guard: never write an empty or whitespace-only entry, and never let a
+// stray newline slip into the file. A blank horoscope is a bug, not a
+// horoscope, so fail loudly instead of producing an empty entry.txt.
+if (HOROSCOPE.trim() === "") {
+  process.stderr.write("error: horoscope entry is empty\n");
+  process.exit(1);
+}
+if (HOROSCOPE.includes("\n")) {
+  process.stderr.write("error: horoscope entry must be a single line\n");
+  process.exit(1);
+}
+
 mkdirSync(outDir, { recursive: true });
 writeFileSync(outFile, HOROSCOPE, "utf8");
 process.stdout.write(HOROSCOPE + "\n");
